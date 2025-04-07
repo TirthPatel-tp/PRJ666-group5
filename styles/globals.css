@@ -512,3 +512,36 @@ body {
 .sidebar-content {
   overflow-y: auto;
 }
+
+/* Countdown Timer Styling */
+.countdown-pill {
+  display: inline-block;
+  padding: 15px 30px;
+  background-color: #f5f5f5; /* Light shade background */
+  color: black;
+  font-size: 2rem; /* Big numbers */
+  font-weight: bold; /* Bold numbers */
+  border-radius: 10px; /* Pill shape */
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 2px solid black; /* Black border for emphasis */
+  margin: 20px auto; /* Center alignment */
+}
+
+/* Progress Bar Styling */
+.progress-bar-container {
+  width: 20px;
+  height: 100%;
+  background-color: #e0e0e0; /* Light gray background */
+  border-radius: 10px;
+  margin-left: 10px;
+  position: relative;
+}
+
+.progress-bar {
+  width: 100%;
+  background-color: #4caf50; /* Green progress */
+  border-radius: 10px;
+  position: absolute;
+  bottom: 0;
+}

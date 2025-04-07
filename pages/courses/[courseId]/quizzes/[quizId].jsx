@@ -3,10 +3,11 @@ import { useRouter } from "next/router";
 import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
 import { app } from "../../../../lib/firebase";
 import { useUser } from "../../../../context/UserContext";
-import CountdownTimer from "../../../../components/common/CountdownTimer";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import CourseLayout from "@/components/common/CourseLayout";
+import ProgressBar from "../../../../components/common/ProgressBar"; // Update import path for ProgressBar
+import QuizFooterBar from "../../../../components/common/QuizFooterBar"; // Import the QuizFooterBar component
 
 const db = getFirestore(app);
 
@@ -18,12 +19,28 @@ const QuizPage = () => {
   const [answers, setAnswers] = useState([]);
   const [timeUp, setTimeUp] = useState(false);
   const [grade, setGrade] = useState(null);
+  const accommodations = user?.name === "Lian"; // Static declaration based on name
+  const adjustedDuration = accommodations ? 300 * 1.5 : 300;
+  const [timeLeft, setTimeLeft] = useState(adjustedDuration); // Initialize timeLeft state
 
   useEffect(() => {
     if (quizId) {
       fetchQuiz();
     }
   }, [quizId]);
+
+  useEffect(() => {
+    if (timeLeft <= 0) {
+      handleTimeUp();
+      return;
+    }
+
+    const timerId = setInterval(() => {
+      setTimeLeft((prevTime) => prevTime - 1);
+    }, 1000);
+
+    return () => clearInterval(timerId);
+  }, [timeLeft]);
 
   const fetchQuiz = async () => {
     try {
@@ -80,6 +97,7 @@ const QuizPage = () => {
     const newAnswers = [...answers];
     newAnswers[index] = value;
     setAnswers(newAnswers);
+    console.log("Updated answers:", newAnswers); // Debug log to ensure state updates
   };
 
   const handleSubmitQuiz = async () => {
@@ -103,6 +121,9 @@ const QuizPage = () => {
   if (!quiz) {
     return <p>Loading quiz...</p>;
   }
+
+  const answeredQuestions = answers.filter((answer) => answer !== null).length; // Count answered questions
+  const totalQuestions = quiz.questions.length; // Total number of questions
 
   return (
     <CourseLayout courseId={courseId}>
@@ -181,6 +202,7 @@ const QuizPage = () => {
                       )
                     }
                     required
+                    className="custom-button"
                     style={{
                       display: "block",
                       width: "100%",
@@ -200,19 +222,18 @@ const QuizPage = () => {
           <Button
             type="button"
             onClick={handleAddQuestion}
-            className="custom-button"
+            className="secondary-button"
             style={{ marginRight: "1rem" }}
           >
             Add Question
           </Button>
-          <Button type="submit" className="custom-button">
+          <Button type="submit" className="secondary-button">
             Save Quiz
           </Button>
         </form>
       ) : (
         <>
           <h1>{quiz.title}</h1>
-          <CountdownTimer duration={300} onTimeUp={handleTimeUp} />
           {quiz.questions.map((q, index) => (
             <Card key={index} className="secondary-card mb-3">
               <Card.Body>
@@ -241,20 +262,12 @@ const QuizPage = () => {
               </Card.Body>
             </Card>
           ))}
-          <Button onClick={handleSubmitQuiz} className="custom-button">
-            Submit Quiz
-          </Button>
-          {grade !== null && (
-            <p
-              style={{
-                fontWeight: "bold",
-                fontSize: "1.2rem",
-                marginTop: "2rem",
-              }}
-            >
-              Your Grade: {grade}%
-            </p>
-          )}
+          <QuizFooterBar
+            timeLeft={timeLeft}
+            onSubmit={handleSubmitQuiz}
+            answeredQuestions={answeredQuestions}
+            totalQuestions={totalQuestions}
+          />
         </>
       )}
       {/* </div> */}
