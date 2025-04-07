@@ -91,6 +91,12 @@ export default function CoursePage() {
     }
   }, [courseId]);
 
+  useEffect(() => {
+    if (selectedForm === "quiz") {
+      handleCreateQuiz();
+    }
+  }, [selectedForm]);
+
   const handleSubmission = async (materialId, file) => {
     if (!file) return alert("Please select a file");
 
@@ -110,19 +116,21 @@ export default function CoursePage() {
         feedback: null,
         courseId,
       });
-      
-   // Look up the assignment name from the materials list
-   const assignment = materials.find((m) => m.id === materialId);
-   const assignmentName = assignment ? assignment.name : materialId;
 
-   // Create a notification document including the assignment name and submission file name
-   await addDoc(collection(db, "notifications"), {
-     title: "New Submission",
-     message: `A new submission has been made by ${user.name || user.email} for assignment "${assignmentName}". Submission file: ${file.name}`,
-     createdAt: serverTimestamp(),
-     courseId,
-     type: "submission",
-   });
+      // Look up the assignment name from the materials list
+      const assignment = materials.find((m) => m.id === materialId);
+      const assignmentName = assignment ? assignment.name : materialId;
+
+      // Create a notification document including the assignment name and submission file name
+      await addDoc(collection(db, "notifications"), {
+        title: "New Submission",
+        message: `A new submission has been made by ${
+          user.name || user.email
+        } for assignment "${assignmentName}". Submission file: ${file.name}`,
+        createdAt: serverTimestamp(),
+        courseId,
+        type: "submission",
+      });
 
       alert("Submission uploaded successfully!");
     } catch (error) {
@@ -206,36 +214,22 @@ export default function CoursePage() {
       ) : (
         <>
           {user?.title === "professor" && (
-  <>
-    <FormSelector onSelect={setSelectedForm} />
-    {selectedForm === "assignment" && (
-      <AddAssignmentForm
-        newAssignment={newAssignment}
-        setNewAssignment={setNewAssignment}
-        handleAddAssignment={handleAddAssignment}
-      />
-    )}
-    {selectedForm === "announcement" && (
-      <AnnouncementForm courseId={courseId} />
-    )}
-    <Dropdown className="my-3">
-      <Dropdown.Toggle variant="primary" id="dropdown-basic">
-        New
-      </Dropdown.Toggle>
-      <Dropdown.Menu>
-        <Dropdown.Item onClick={() => setSelectedForm("assignment")}>
-          Add Assignment
-        </Dropdown.Item>
-        <Dropdown.Item onClick={handleCreateQuiz}>
-          Add Quiz
-        </Dropdown.Item>
-      </Dropdown.Menu>
-    </Dropdown>
-    {/* Collapsible NotificationList for professors */}
-    <NotificationList courseId={courseId} />
-  </>
-)}
-
+            <>
+              <FormSelector onSelect={setSelectedForm} />
+              {selectedForm === "assignment" && (
+                <AddAssignmentForm
+                  newAssignment={newAssignment}
+                  setNewAssignment={setNewAssignment}
+                  handleAddAssignment={handleAddAssignment}
+                />
+              )}
+              {selectedForm === "announcement" && (
+                <AnnouncementForm courseId={courseId} />
+              )}
+              {/* Collapsible NotificationList for professors */}
+              <NotificationList courseId={courseId} />
+            </>
+          )}
 
           {loadingAnnouncements ? (
             <p>Loading announcements...</p>
