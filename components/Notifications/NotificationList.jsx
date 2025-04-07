@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+} from "firebase/firestore";
 import { db } from "../../lib/firebase";
 import { Collapse, Button, Card } from "react-bootstrap";
 
@@ -32,7 +38,7 @@ const NotificationList = ({ courseId }) => {
         aria-expanded={open}
         variant="primary"
         size="sm"
-        className="mb-2"
+        className="m-2 custom-button"
       >
         {open ? "Hide Notifications" : "Show Notifications"}
       </Button>
